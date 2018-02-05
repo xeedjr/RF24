@@ -12,7 +12,7 @@
 
 /****************************************************************************/
 
-void RF24::csn(int mode)
+/*void RF24::csn(int mode)
 {
   // Minimum ideal SPI bus speed is 2x data rate
   // If we assume 2Mbs data rate and 16Mhz clock, a
@@ -23,16 +23,32 @@ void RF24::csn(int mode)
   SPI.setDataMode(SPI_MODE0);
   SPI.setClockDivider(SPI_CLOCK_DIV4);
 #endif
-  digitalWrite(csn_pin,mode);
+  //digitalWrite(csn_pin,mode);
+  if(mode)
+  {
+      palSetPad(RFM7x_CSN_PORT, RFM7x_CSN_PAD);
+  }
+  else
+  {
+      palClearPad(RFM7x_CSN_PORT, RFM7x_CSN_PAD);
+  }
 }
-
+*/
 /****************************************************************************/
-
+/*
 void RF24::ce(int level)
 {
-  digitalWrite(ce_pin,level);
+    if(level)
+    {
+        palSetPad(RFM7x_CE_PORT, RFM7x_CE_PAD);
+    }
+    else
+    {
+        palClearPad(RFM7x_CE_PORT, RFM7x_CE_PAD);
+    }
+  //digitalWrite(ce_pin,level);
 }
-
+*/
 /****************************************************************************/
 
 uint8_t RF24::read_register(uint8_t reg, uint8_t* buf, uint8_t len)
@@ -70,7 +86,7 @@ uint8_t RF24::write_register(uint8_t reg, const uint8_t* buf, uint8_t len)
   csn(LOW);
   status = SPI.transfer( W_REGISTER | ( REGISTER_MASK & reg ) );
   while ( len-- )
-    SPI.transfer(*buf++);
+	  SPI.transfer(*buf++);
 
   csn(HIGH);
 
@@ -188,7 +204,7 @@ void RF24::print_status(uint8_t status)
            (status & _BV(RX_DR))?1:0,
            (status & _BV(TX_DS))?1:0,
            (status & _BV(MAX_RT))?1:0,
-           ((status >> RX_P_NO) & B111),
+           ((status >> RX_P_NO) & 0b111),
            (status & _BV(TX_FULL))?1:0
           );
 }
@@ -199,8 +215,8 @@ void RF24::print_observe_tx(uint8_t value)
 {
   printf_P(PSTR("OBSERVE_TX=%02x: POLS_CNT=%x ARC_CNT=%x\r\n"),
            value,
-           (value >> PLOS_CNT) & B1111,
-           (value >> ARC_CNT) & B1111
+           (value >> PLOS_CNT) & 0b1111,
+           (value >> ARC_CNT) & 0b1111
           );
 }
 
@@ -238,11 +254,12 @@ void RF24::print_address_register(const char* name, uint8_t reg, uint8_t qty)
 
 /****************************************************************************/
 
-RF24::RF24(uint8_t _cepin, uint8_t _cspin):
-  ce_pin(_cepin), csn_pin(_cspin), wide_band(true), p_variant(false), 
+RF24::RF24(RF24HAL* rf24_hal):
+  SPI(rf24_hal), wide_band(true), p_variant(false),
   payload_size(32), ack_payload_available(false), dynamic_payloads_enabled(false),
   pipe0_reading_address(0)
 {
+	_rf24_hal = rf24_hal;
 }
 
 /****************************************************************************/
@@ -333,8 +350,8 @@ void RF24::printDetails(void)
 void RF24::begin(void)
 {
   // Initialize pins
-  pinMode(ce_pin,OUTPUT);
-  pinMode(csn_pin,OUTPUT);
+//  pinMode(ce_pin,OUTPUT);
+//  pinMode(csn_pin,OUTPUT);
 
   // Initialize SPI bus
   SPI.begin();
@@ -353,7 +370,7 @@ void RF24::begin(void)
   // Set 1500uS (minimum for 32B payload in ESB@250KBPS) timeouts, to make testing a little easier
   // WARNING: If this is ever lowered, either 250KBS mode with AA is broken or maximum packet
   // sizes must never be used. See documentation for a more complete explanation.
-  write_register(SETUP_RETR,(B0100 << ARD) | (B1111 << ARC));
+  write_register(SETUP_RETR,(0b0100 << ARD) | (0b1111 << ARC));
 
   // Restore our default PA level
   setPALevel( RF24_PA_MAX ) ;
@@ -555,7 +572,7 @@ bool RF24::available(uint8_t* pipe_num)
   {
     // If the caller wants the pipe number, include that
     if ( pipe_num )
-      *pipe_num = ( status >> RX_P_NO ) & B111;
+      *pipe_num = ( status >> RX_P_NO ) & 0b111;
 
     // Clear the status bit
 
@@ -723,7 +740,7 @@ void RF24::writeAckPayload(uint8_t pipe, const void* buf, uint8_t len)
   const uint8_t* current = reinterpret_cast<const uint8_t*>(buf);
 
   csn(LOW);
-  SPI.transfer( W_ACK_PAYLOAD | ( pipe & B111 ) );
+  SPI.transfer( W_ACK_PAYLOAD | ( pipe & 0b111 ) );
   const uint8_t max_payload_size = 32;
   uint8_t data_len = min(len,max_payload_size);
   while ( data_len-- )
@@ -753,7 +770,7 @@ bool RF24::isPVariant(void)
 void RF24::setAutoAck(bool enable)
 {
   if ( enable )
-    write_register(EN_AA, B111111);
+    write_register(EN_AA, 0b111111);
   else
     write_register(EN_AA, 0);
 }

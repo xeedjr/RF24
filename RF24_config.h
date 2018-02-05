@@ -10,10 +10,12 @@
 #ifndef __RF24_CONFIG_H__
 #define __RF24_CONFIG_H__
 
-#if ARDUINO < 100
-#include <WProgram.h>
-#else
-#include <Arduino.h>
+#ifdef ARDUINO
+	#if ARDUINO < 100
+	#include <WProgram.h>
+	#else
+	#include <Arduino.h>
+	#endif
 #endif
 
 #include <stddef.h>
@@ -25,7 +27,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-extern HardwareSPI SPI;
+#ifdef ARDUINO
+	extern HardwareSPI SPI;
+#endif
 #define _BV(x) (1<<(x))
 #endif
 
@@ -51,14 +55,20 @@ extern HardwareSPI SPI;
 #include <avr/pgmspace.h>
 #define PRIPSTR "%S"
 #else
-typedef char const char;
-typedef uint16_t prog_uint16_t;
-#define PSTR(x) (x)
-#define printf_P printf
-#define strlen_P strlen
-#define PROGMEM
-#define pgm_read_word(p) (*(p)) 
-#define PRIPSTR "%s"
+	//typedef char const char;
+	typedef uint16_t prog_uint16_t;
+	#define PSTR(x) (x)
+	#define printf_P printf
+	#define strlen_P strlen
+	#define PROGMEM
+	#define pgm_read_word(p) (*(p))
+	#define pgm_read_byte(p) (*(p))
+	#define PRIPSTR "%s"
+	#define LOW 0
+	#define HIGH 1
+	#define max(a,b) (a>b?a:b)
+	#define min(a,b) (a<b?a:b)
+
 #endif
 
 #endif // __RF24_CONFIG_H__

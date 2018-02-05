@@ -15,7 +15,8 @@
 #ifndef __RF24_H__
 #define __RF24_H__
 
-#include <RF24_config.h>
+//#include <RF24_config.h>
+#include "RF24HAL.h"
 
 /**
  * Power Amplifier level.
@@ -45,8 +46,6 @@ typedef enum { RF24_CRC_DISABLED = 0, RF24_CRC_8, RF24_CRC_16 } rf24_crclength_e
 class RF24
 {
 private:
-  uint8_t ce_pin; /**< "Chip Enable" pin, activates the RX or TX role */
-  uint8_t csn_pin; /**< SPI Chip select */
   bool wide_band; /* 2Mbs data rate in use? */
   bool p_variant; /* False for RF24L01 and true for RF24L01P */
   uint8_t payload_size; /**< Fixed size of payloads */
@@ -55,6 +54,23 @@ private:
   uint8_t ack_payload_length; /**< Dynamic size of pending ack payload. */
   uint64_t pipe0_reading_address; /**< Last address set on pipe 0 for reading. */
 
+  RF24HAL* _rf24_hal;
+  uint32_t millis() { return _rf24_hal->millis(); };
+  void delay(uint16_t ms) { _rf24_hal->delay(ms); };
+  void delayMicroseconds(uint16_t us) { _rf24_hal->delayMicroseconds(us); };
+  class SPIT {
+	  RF24HAL* _rf24_hal;
+  public:
+	  SPIT(RF24HAL* rf24_hal) {
+		  _rf24_hal = rf24_hal;
+	  };
+	  uint8_t transfer(uint8_t tx) {
+		  return _rf24_hal->spi_transfer(tx);
+	  }
+	  void begin() {
+		  _rf24_hal->hal_init();
+	  };
+  } SPI;
 protected:
   /**
    * @name Low-level internal interface.
@@ -75,7 +91,7 @@ protected:
    *
    * @param mode HIGH to take this unit off the SPI bus, LOW to put it on
    */
-  void csn(int mode);
+  void csn(int mode) { _rf24_hal->csn(mode); };
 
   /**
    * Set chip enable
@@ -83,7 +99,7 @@ protected:
    * @param level HIGH to actively begin transmission or LOW to put in standby.  Please see data sheet
    * for a much more detailed description of this pin.
    */
-  void ce(int level);
+  void ce(int level) { _rf24_hal->ce(level); };
 
   /**
    * Read a chunk of data in from a register
@@ -236,6 +252,7 @@ public:
    * @param _cspin The pin attached to Chip Select
    */
   RF24(uint8_t _cepin, uint8_t _cspin);
+  RF24(RF24HAL* rf24_hal);
 
   /**
    * Begin operation of the chip
@@ -644,7 +661,7 @@ public:
    *
    * @return true if this is a legitimate radio 
    */
-  bool isValid() { return ce_pin != 0xff && csn_pin != 0xff; } 
+  //bool isValid() { return ce_pin != 0xff && csn_pin != 0xff; }
 
   /**@}*/
 };
