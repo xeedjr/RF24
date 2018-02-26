@@ -10,16 +10,16 @@
 
 class RF24HAL {
 public:
-	RF24HAL();
-	virtual ~RF24HAL();
+	RF24HAL() {};
+	virtual ~RF24HAL() {};
 
-	uint32_t millis();
-	void delay(uint16_t ms);
-	void delayMicroseconds(uint16_t us);
-	void csn(int mode);
-	void ce(int level);
-	uint8_t spi_transfer(uint8_t tx);
-	void hal_init();
+	virtual uint32_t millis() = 0;
+	virtual void delay(uint16_t ms) = 0;
+	virtual void delayMicroseconds(uint16_t us) = 0;
+	virtual void csn(int mode) = 0;
+	virtual void ce(int level) = 0;
+	virtual uint8_t spi_transfer(uint8_t tx) = 0;
+	virtual void hal_init() = 0;
 };
 
 #endif /* NRF24_RF24HAL_H_ */
