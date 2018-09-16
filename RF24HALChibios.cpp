@@ -8,12 +8,7 @@
 #include <hal.h>
 
 #include "RF24HALChibios.h"
-
-#define RFM7x_USE_SPI SPID1
-#define RFM7x_CSN_PORT IOPORT1
-#define RFM7x_CSN_PAD (4)
-#define RFM7x_CE_PORT IOPORT1
-#define RFM7x_CE_PAD (1)
+#include "RF24HALChibiosConfig.h"
 
 #define RFM7x_CSN_LOW palClearPad(RFM7x_CSN_PORT, RFM7x_CSN_PAD)
 #define RFM7x_CSN_HI  palSetPad(RFM7x_CSN_PORT, RFM7x_CSN_PAD)
@@ -38,7 +33,7 @@ RF24HAL_Chibios::~RF24HAL_Chibios() {
 }
 
 uint32_t RF24HAL_Chibios::millis() {
-	return ST2MS(osalOsGetSystemTimeX());
+	return TIME_I2MS(osalOsGetSystemTimeX());
 }
 
 void RF24HAL_Chibios::delay(uint16_t ms) {
