@@ -16,12 +16,28 @@
 #define RFM7x_CE_LOW  palClearPad(RFM7x_CE_PORT, RFM7x_CE_PAD)
 #define RFM7x_CE_HI   palSetPad(RFM7x_CE_PORT, RFM7x_CE_PAD)
 
+/**
+ * @biref   SPI configuration strucrture.
+ */
+#if CH_HAL_MAJOR == 5
 static const SPIConfig spiCfg = {
 	NULL,       /* SPI callback.          */
 	RFM7x_CSN_PORT,          /* SPI chip select port.  */
 	RFM7x_CSN_PAD,                /* SPI chip select pad.   */
 	0
 };
+#endif
+#if CH_HAL_MAJOR == 6
+static const SPIConfig spiCfg = {
+  NULL,                  /* SPI callback.                  */
+  RFM7x_CSN_PORT,                      /* SPI chip select port.          */
+  RFM7x_CSN_PAD,                            /* SPI chip select pad.           */
+  SPI_CR_DORD_MSB_FIRST     |   /* SPI Data order.                */
+  SPI_CR_CPOL_CPHA_MODE(0)  |   /* SPI clock polarity and phase.  */
+  SPI_CR_SCK_FOSC_128,          /* SPI clock.                     */
+  SPI_SR_SCK_FOSC_2             /* SPI double speed bit.          */
+};
+#endif
 
 RF24HAL_Chibios::RF24HAL_Chibios() {
 	// TODO Auto-generated constructor stub
