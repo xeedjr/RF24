@@ -85,10 +85,9 @@ void RF24HAL_Chibios::ce(int level)
 }
 
 uint8_t RF24HAL_Chibios::spi_transfer(uint8_t tx) {
-	uint8_t rx = 0;
-
 	uint8_t rxbuf[1];
 	uint8_t txbuf[1];
+	
 	txbuf[0] = tx;
 	spiExchange(&RFM7x_USE_SPI, 1,
 	txbuf, rxbuf);
