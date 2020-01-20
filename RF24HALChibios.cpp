@@ -27,17 +27,15 @@ static const SPIConfig spiCfg = {
 	0
 };
 #endif
-#if CH_HAL_MAJOR == 6
+#if (CH_HAL_MAJOR == 6) || (CH_HAL_MAJOR == 7)
 static const SPIConfig spiCfg = {
   NULL,                  /* SPI callback.                  */
   RFM7x_CSN_PORT,                      /* SPI chip select port.          */
   RFM7x_CSN_PAD,                            /* SPI chip select pad.           */
-  SPI_CR_DORD_MSB_FIRST     |   /* SPI Data order.                */
-  SPI_CR_CPOL_CPHA_MODE(0)  |   /* SPI clock polarity and phase.  */
-  SPI_CR_SCK_FOSC_128,          /* SPI clock.                     */
-  SPI_SR_SCK_FOSC_2             /* SPI double speed bit.          */
+  RFM7x_USE_SPI_CNF
 };
 #endif
+
 
 RF24HAL_Chibios::RF24HAL_Chibios() {
 	// TODO Auto-generated constructor stub

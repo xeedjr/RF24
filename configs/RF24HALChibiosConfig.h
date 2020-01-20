@@ -11,6 +11,12 @@
 #include <hal.h>
 
 #define RFM7x_USE_SPI SPID1
+#define RFM7x_USE_SPI_CNF				\
+  SPI_CR_DORD_MSB_FIRST     |   /* SPI Data order.                */ \
+  SPI_CR_CPOL_CPHA_MODE(0)  |   /* SPI clock polarity and phase.  */ \
+  SPI_CR_SCK_FOSC_128,          /* SPI clock.                     */ \
+  SPI_SR_SCK_FOSC_2             /* SPI double speed bit.          */ 
+
 #define RFM7x_CSN_PORT IOPORT1
 #define RFM7x_CSN_PAD (4)
 #define RFM7x_CE_PORT IOPORT1
