@@ -29,6 +29,9 @@ static const SPIConfig spiCfg = {
 #endif
 #if (CH_HAL_MAJOR == 6) || (CH_HAL_MAJOR == 7)
 static const SPIConfig spiCfg = {
+#if (SPI_SUPPORTS_CIRCULAR == TRUE)
+  false,
+#endif
   NULL,                  /* SPI callback.                  */
   RFM7x_CSN_PORT,                      /* SPI chip select port.          */
   RFM7x_CSN_PAD,                            /* SPI chip select pad.           */
